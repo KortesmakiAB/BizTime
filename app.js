@@ -4,13 +4,17 @@ const express = require('express');
 const axios = require('axios');
 const morgan = require('morgan');
 
+const companiesRoutes = require('./routes/companies');
+const invoicesRoutes = require('./routes/invoices');
 const ExpressError = require('./expressError');	  
-// const middleware = require('./middleware');
+
 
 const app = express();
 
-app.use(morgan('dev'));
 app.use(express.json());
+app.use(morgan('dev'));
+app.use('/companies', companiesRoutes);
+app.use('/invoices', invoicesRoutes);
 
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));	
 
