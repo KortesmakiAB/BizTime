@@ -3,12 +3,11 @@ const express = require('express');
 const db = require('../db');
 const ExpressError = require('../expressError');
 const { getCompanyOr404 } = require('../helpers');
-// const middleware = require('../middleware');
 
 const router = new express.Router();
 
 
-/*      /companies ROUTES       */
+//      /companies ROUTES
 
 router.get('/', async (req, resp, next) => {
     try {
@@ -26,10 +25,14 @@ router.get('/', async (req, resp, next) => {
 router.get('/:code', async (req, resp, next) => {
     try {
         const company = await getCompanyOr404(req.params.code);
-
-        return resp.json({
-            company: company.rows[0]
-        });
+        const invoices = await db.query(`SELECT * FROM invoices WHERE comp_code = $1`, [company.code]);
+        
+        return resp.json({ company: {
+                                code: company.code,
+                                name: company.name,
+                                description: company.description,
+                                invoices: invoices.rows
+        }});
     }
     catch(err) {
         return next(err);
@@ -76,9 +79,9 @@ router.delete('/:code', async (req, resp, next) => {
     try {
         const company = await getCompanyOr404(req.params.code);
         
-        const deleted = await db.query('DELETE FROM companies WHERE code = $1', [company.code])
-
-        return resp.json({ company: `${company.name} successfully deleted.`});
+        const deleted = await db.query('DELETE FROM companies WHERE code = $1 RETURNING name', [company.code])
+        
+        return resp.json({ status: `${deleted.rows[0].name} successfully deleted.`});
     }
     catch(err) {
         return next(err);
