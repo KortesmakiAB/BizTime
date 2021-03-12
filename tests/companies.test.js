@@ -9,17 +9,13 @@ const testCoVals = ['tst', 'test', 'test description'];
 const testInvoiceVals = [testCoVals[0], 100];
 let testCompany;
 
-// beforeAll(async () => {
-    
-// });
-
 beforeEach(async () => {
     const company = await db.query(`INSERT INTO companies VALUES ($1, $2, $3) RETURNING code, name, description`, testCoVals);
     testCompany = company.rows[0];
+
     const invoice = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`, testInvoiceVals);
     
     testCompany.invoices = invoice.rows;
-    // debugger
 });
 
 afterEach(async () => {
@@ -31,11 +27,16 @@ afterAll(async () => {
     await db.end();
 });
 
+
+//      /companies routes tests
+
+
 describe('GET /companies', () => {
     test('should return array of all companies.', async () => {
         const getCompanies = await request(app).get('/companies');
 
         expect(getCompanies.statusCode).toBe(200);
+        expect(getCompanies.body.companies.length).toBe(1);
         expect(getCompanies.body).toEqual({ 'companies': [{
             'code': testCompany.code,
             'name': testCompany.name

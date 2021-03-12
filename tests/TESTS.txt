@@ -28,3 +28,26 @@ DELETE /
 VALID: Does it delete company? Status code and message. But also verify in db?
 INVALID:  Does it 404 with invalid code (high number, 0, numbers, NaN, undefined, negative)?
 Needs: company
+
+-------------------------
+INVOICES
+
+GET /
+VALID:  get id, comp_code, amt
+INVALID:
+
+GET /:id
+VALID: get id, amt, paid, add_date, paid_date, company {} (but not comp_code)
+INVALID: 404 if: invalid num (0), string, null,
+
+POST /
+VALID: includes comp_code and amt
+INVALID: comp_code (string, int, undefined), amt(0 or less). 400
+
+PUT /:id
+VALID: amt
+INVALID: amt (0 or less, string, undefined), 404
+
+DELETE /:id
+VALID: 
+INVALID: 404
