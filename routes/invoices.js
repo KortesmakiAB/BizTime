@@ -24,7 +24,8 @@ router.get('/:id', async (req, resp, next) => {
     try {
         const invoice = await getInvoiceOr404(req.params.id);
         const company = await getCompanyOr404(invoice.comp_code);
-        
+
+        // using the long version, so as not to include comp_code.
         return resp.json({ invoice: {
                                 id: invoice.id, 
                                 amt: invoice.amt, 

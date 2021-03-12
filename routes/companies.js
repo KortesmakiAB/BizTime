@@ -24,15 +24,13 @@ router.get('/', async (req, resp, next) => {
 
 router.get('/:code', async (req, resp, next) => {
     try {
+        // could refactor this so queries happen in parallel, not in sequence. They aren't dependent on each other.
         const company = await getCompanyOr404(req.params.code);
-        const invoices = await db.query(`SELECT * FROM invoices WHERE comp_code = $1`, [company.code]);
+        const invoices = await db.query(`SELECT id, comp_code, amt, paid, add_date, paid_date FROM invoices WHERE comp_code = $1`, [company.code]);
         
-        return resp.json({ company: {
-                                code: company.code,
-                                name: company.name,
-                                description: company.description,
-                                invoices: invoices.rows
-        }});
+        company.invoices = invoices.rows;
+        
+        return resp.json({ company });
     }
     catch(err) {
         return next(err);
@@ -42,7 +40,7 @@ router.get('/:code', async (req, resp, next) => {
 router.post('/', async (req, resp, next) => {
     try {
         const { code, name } = req.body;
-        if (!code || !name) throw new ExpressError(`Please include a company code and company name`, 400);
+        if (!code || !name) throw new ExpressError(`Please include a company code and company name.`, 400);
 
         const description = req.body.description || null;
 

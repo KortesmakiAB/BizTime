@@ -1,6 +1,6 @@
 What does this do? (from ansr key)
 const slugify = require("slugify");
 
-How do Parameterized Queries work?
+How do Parameterized Queries work? I used them every time, is this best practices?
 
 Why "return" `from return next(err);`

@@ -1,0 +1,30 @@
+-------------------------
+COMPANIES
+
+GET /
+VALID: Does it get an array of all companies?
+Needs: company
+
+GET /:code
+Does it get the right response? Does it return code, name, description?
+Does it 404 with invalid code (high number, 0, numbers, NaN, undefined, negative)
+Needs: a company and an invoice
+
+
+POST /
+VALID: Successfully post w description? Successfully post without description?
+INVALID: Throw error if no code or no name? no code AND no name?
+Needs: n/add
+
+PUT / 
+VALID: update name, update description, not update code.
+INVALID: 
+    Does it 404 with invalid code (high number, 0, numbers, NaN, undefined, negative)?
+    Non text (which kinds? numbers, undefined/null?) inputs for name, text, description?
+        I don't have any logic for this. Is it worth my time to add some?
+Needs: company
+
+DELETE /
+VALID: Does it delete company? Status code and message. But also verify in db?
+INVALID:  Does it 404 with invalid code (high number, 0, numbers, NaN, undefined, negative)?
+Needs: company
