@@ -20,6 +20,8 @@ beforeEach(async () => {
 
 afterEach(async () => {
     await db.query(`DELETE FROM companies`);
+
+    testCompany = undefined;
 });
 
 afterAll(async () => {

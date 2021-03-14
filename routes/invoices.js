@@ -44,9 +44,11 @@ router.post('/', async (req, resp, next) => {
     try {
         const {comp_code, amt} = req.body;
         if (!comp_code || !amt) throw new ExpressError(`Please include a company code and invoice amount.`, 400);
+        else if (!isNaN(comp_code)) throw new ExpressError('Company code may not be a number.', 400);
         else if (amt < 0) throw new ExpressError(`Please include an invoice amount greater than 0.`, 400);
 
-        const invoice = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`, [comp_code, amt]);
+        const compCode = await getCompanyOr404(comp_code);
+        const invoice = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`, [compCode.code, amt]);
 
         return resp.status(201).json({ invoice : invoice.rows[0]});
     }
@@ -57,20 +59,18 @@ router.post('/', async (req, resp, next) => {
 
 router.put('/:id', async (req, resp, next) => {
     try {
-        if (!req.body.amt) throw new ExpressError(`Please include an updated invoice amount.`, 400);
-        else if (req.body.amt < 0) throw new ExpressError(`Please include an updated invoice amount greater than 0.`, 400);
-
-        const amt = req.body.amt;
+        if (req.body.amt <= 0) throw new ExpressError(`Please include an updated invoice amount greater than 0.`, 400);
+        else if (typeof req.body.amt !== 'number') throw new ExpressError(`Please include a valid invoice amount.`, 400);
 
         const invoice = await getInvoiceOr404(req.params.id);
-        invoice.amt = amt;
-        
+
+        invoice.amt = req.body.amt;
 
         // some of the SQL from this line is from solution code.
         const updatedInvoice = await db.query(`UPDATE invoices
                                                 SET amt = $1
                                                 WHERE id = $2
-                                                RETURNING id, comp_code, amt, paid, add_date, paid_date`, [amt, req.params.id]
+                                                RETURNING id, comp_code, amt, paid, add_date, paid_date`, [req.body.amt, req.params.id]
         );
 
         return resp.json({ invoice: updatedInvoice.rows[0]});

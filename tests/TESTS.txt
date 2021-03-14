@@ -42,7 +42,7 @@ INVALID: 404 if: invalid num (0), string, null,
 
 POST /
 VALID: includes comp_code and amt
-INVALID: comp_code (string, int, undefined), amt(0 or less). 400
+INVALID: comp_code (that doesn't exist, int, undefined), amt(0 or less). 400
 
 PUT /:id
 VALID: amt

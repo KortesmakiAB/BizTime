@@ -9,6 +9,7 @@ async function getCompanyOr404(code){
 } 
 
 async function getInvoiceOr404(id){
+    if (isNaN(id)) throw new ExpressError ('Please enter a valid invoice id.', 404);
     const invoice = await db.query(`SELECT id, comp_code, amt, paid, add_date, paid_date FROM invoices WHERE id = $1`, [id]);
     
     if (invoice.rows.length === 0) throw new ExpressError(`Cannot find invoice with id ${id}.`, 404);
