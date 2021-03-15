@@ -5,35 +5,40 @@ const request = require('supertest');
 const app = require('../app');
 const db = require('../db');
 
-const testCoVals = ['tst', 'test', 'test description'];
+const testCoVals = ['tstC', 'testC', 'test description'];
 const testInvoiceVals = [testCoVals[0], 100];
 let testCompany;
 
-beforeEach(async () => {
-    const company = await db.query(`INSERT INTO companies VALUES ($1, $2, $3) RETURNING code, name, description`, testCoVals);
-    testCompany = company.rows[0];
-
-    const invoice = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`, testInvoiceVals);
-    
-    testCompany.invoices = invoice.rows;
-});
-
-afterEach(async () => {
-    await db.query(`DELETE FROM companies`);
-
-    testCompany = undefined;
-});
 
 afterAll(async () => {
+    await db.query(`DELETE FROM companies`);
     await db.query(`DELETE FROM invoices`);
     await db.end();
 });
 
+function beforeAfterEach(){
+    beforeEach(async () => {
+        const company = await db.query(`INSERT INTO companies VALUES ($1, $2, $3) RETURNING code, name, description`, testCoVals);
+        testCompany = company.rows[0];
+    
+        const invoice = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ($1, $2) RETURNING id, comp_code, amt, paid, add_date, paid_date`, testInvoiceVals);
+        
+        testCompany.invoices = invoice.rows;
+    });
+    
+    afterEach(async () => {
+        testCompany = undefined;
+
+        await db.query(`DELETE FROM companies`);
+    });
+}
 
 //      /companies routes tests
 
 
 describe('GET /companies', () => {
+    beforeAfterEach();
+
     test('should return array of all companies.', async () => {
         const getCompanies = await request(app).get('/companies');
 
@@ -47,6 +52,8 @@ describe('GET /companies', () => {
 });
 
 describe('GET /companies/:code', () => {
+    beforeAfterEach();
+
     test('should return object with code, name, description.', async () => {
         const getCompany = await request(app).get(`/companies/${testCompany.code}`);
         
@@ -77,6 +84,7 @@ describe('GET /companies/:code', () => {
 });
 
 describe('POST /companies', () => {
+
     test('should successfully post a company (with description).', async () => {
         const testCompanyObj = {
             code: 'sprgbrd',
@@ -138,6 +146,8 @@ describe('POST /companies', () => {
 });
 
 describe('PUT /companies/:code', () => {
+    beforeAfterEach();
+
     test('should update company name.', async () => {
         const updateName = {name: 'test_test'}
         const updatedCo = await request(app).put(`/companies/${testCompany.code}`).send(updateName);
@@ -188,6 +198,8 @@ describe('PUT /companies/:code', () => {
 });
 
 describe('DELETE /companies/:code', () => {
+    beforeAfterEach();
+
     test('should successfully delete a company.', async () => {
         const deleteCo = await request(app).delete(`/companies/${testCompany.code}`);
 

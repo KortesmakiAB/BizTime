@@ -4,9 +4,8 @@ const request = require('supertest');
 
 const app = require('../app');
 const db = require('../db');
-const { getInvoiceOr404 } = require('../helpers');
 
-const testCoVals = ['tst', 'test', 'test description'];
+const testCoVals = ['tstI', 'testI', 'test description'];
 const testInvoiceVals = [testCoVals[0], 100];
 let testCompany;
 let testInvoice;
@@ -19,7 +18,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await db.query(`DELETE FROM companies`)
+    await db.query(`DELETE FROM companies`);
+    await db.query(`DELETE FROM invoices`);
     await db.end();
 });
 
@@ -32,9 +32,9 @@ function beforeAfterEach(){
     });
     
     afterEach(async () => {
-        await db.query(`DELETE FROM invoices`);
-
         testInvoice = undefined;
+
+        await db.query(`DELETE FROM invoices`);
     });
 }
 
