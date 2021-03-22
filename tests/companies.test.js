@@ -51,6 +51,24 @@ describe('GET /companies', () => {
     });
 });
 
+async function testEdges(requestFn){
+    const nums = -123456789;
+    const notFoundNums = await requestFn(`/companies/${nums}`);
+    
+    expect(notFoundNums.statusCode).toBe(404);
+    expect(notFoundNums.body.error.message).toBe(`Cannot find company with code ${nums}.`);
+    
+    const notFoundNull = await requestFn(`/companies/${null}`);
+    expect(notFoundNull.statusCode).toBe(404);
+    expect(notFoundNull.body.error.message).toBe(`Cannot find company with code null.`);
+    const string = 'Voldemort';
+    const notFoundString = await requestFn(`/companies/${string}`);
+    expect(notFoundString.statusCode).toBe(404);
+    expect(notFoundString.body.error.message).toBe(`Cannot find company with code ${string}.`);
+}
+
+
+
 describe('GET /companies/:code', () => {
     beforeAfterEach();
 
@@ -64,22 +82,8 @@ describe('GET /companies/:code', () => {
     });
     
     test('should throw Error if invalid code.', async () => {
-        const nums = -123456789;
-        const notFoundNums = await request(app).get(`/companies/${nums}`);
+        testEdges(request(app).get)
         
-        expect(notFoundNums.statusCode).toBe(404);
-        expect(notFoundNums.body.error.message).toBe(`Cannot find company with code ${nums}.`);
-        
-        const notFoundNull = await request(app).get(`/companies/${null}`);
-
-        expect(notFoundNull.statusCode).toBe(404);
-        expect(notFoundNull.body.error.message).toBe(`Cannot find company with code null.`);
-
-        const string = 'Voldemort';
-        const notFoundString = await request(app).get(`/companies/${string}`);
-
-        expect(notFoundString.statusCode).toBe(404);
-        expect(notFoundString.body.error.message).toBe(`Cannot find company with code ${string}.`);
     });
 });
 
